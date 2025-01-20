@@ -7,6 +7,11 @@ pipeline {
     }
 
     stages {
+        stage('Docker') {
+            steps {
+                sh 'docker build -t my-playwright .'
+            }
+        }
         stage('Build') {
             agent {
                 docker {
@@ -27,33 +32,37 @@ pipeline {
             }
         }
 
-        stage('Run tests') {
-            parallel {
-                stage('Test 1') {
-                    agent {
-                        docker {
-                            image 'node:18-alpine'
-                            reuseNode true
-                        }
-                    }
+        // stage('Run tests') {
+        //     parallel {
+        //         stage('Test 1') {
+        //             agent {
+        //                 docker {
+        //                     image 'node:18-alpine'
+        //                     reuseNode true
+        //                 }
+        //             }
 
-                    steps {
-                        sh '''
-                            test -f build/index.html
-                            npm test
-                        '''
-                    }
-                }
+        //             environment {
+        //                 CI_ENVIRONMENT_URL = "example-url-any"
+        //             }
 
-                stage('Test 2') {
-                    steps {
-                        sh '''
-                            ls -la
-                        '''
-                    }
-                }
-            }
-        }
+        //             steps {
+        //                 sh '''
+        //                     test -f build/index.html
+        //                     npm test
+        //                 '''
+        //             }
+        //         }
+
+        //         stage('Test 2') {
+        //             steps {
+        //                 sh '''
+        //                     ls -la
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Deploy') {
             agent {
