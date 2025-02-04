@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         REACT_APP_VERSION = "1.0.$BUILD_ID"
+        AWS_DEFAULT_REGION = "ap-southeast-2"
     }
 
     stages {
@@ -15,6 +16,8 @@ pipeline {
                     args "--entrypoint=''"
                 }
             }
+            // nhớ thêm region để tránh lỗi
+            // You must specify a region. You can also configure your region by running "aws configure".
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
