@@ -13,16 +13,18 @@ pipeline {
                     image 'amazon/aws-cli'
                     // thêm line này để fix issue path build does not exist
                     reuseNode true
-                    args "--entrypoint=''"
+                    // thêm -u root chỉ để cho yum cài dc jq
+                    args "-u root --entrypoint=''"
                 }
             }
-            // nhớ thêm region để tránh lỗi
-            // You must specify a region. You can also configure your region by running "aws configure".
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         aws --version
-                        aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json
+                        yum install jq -y
+                        LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json | jq '.taskDefinition.revision')
+                        echo $LATEST_TD_REVISION
+                        aws ecs update-service --cluster LearnJenkinAppHi --service LearnJenkinsApp-Service-Prod --task-definition LearnJenkinApp-TaskDefinition-Prod:$LATEST_TD_REVISION
                     '''
                 }
                 
